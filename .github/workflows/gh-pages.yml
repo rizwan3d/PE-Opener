@@ -1,0 +1,41 @@
+name: DeployToGitHubPages
+env:
+  PUBLISH_DIR: ./PE-Opener/bin/Release/net7.0/publish/wwwroot
+
+# Controls when the action will run
+on:
+  workflow_dispatch:
+  
+permissions:
+  contents: write
+
+jobs:
+  build:
+    # use ubuntu-latest image to run steps on
+    runs-on: ubuntu-latest
+    steps:
+    # uses GitHub's checkout action to checkout code form the master branch
+    - uses: actions/checkout@v2
+
+    # publishes Blazor project to the release-folder
+    - name: Publish app
+      run: dotnet publish ./PE-Opener/WebRISCV.csproj -c Release
+
+    - name: Rewrite base href
+      uses: SteveSandersonMS/ghaction-rewrite-base-href@v1
+      with:
+        html_path: ${{ env.PUBLISH_DIR }}/index.html
+        base_href: /PE-Opener/
+
+    # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
+    - name: Add .nojekyll file
+      run: touch ${{ env.PUBLISH_DIR }}/.nojekyll
+
+    - name: GitHub Pages
+      if: success()
+      uses: crazy-max/ghaction-github-pages@v1.5.1
+      with:
+        target_branch: gh-pages
+        build_dir: ${{ env.PUBLISH_DIR }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
