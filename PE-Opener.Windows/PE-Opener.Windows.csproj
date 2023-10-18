@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <RootNamespace>PE_Opener.Windows</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AsmResolver" Version="5.4.0" />
+    <PackageReference Include="AsmResolver.DotNet" Version="5.4.0" />
+    <PackageReference Include="AsmResolver.DotNet.Dynamic" Version="5.4.0" />
+    <PackageReference Include="AsmResolver.PE" Version="5.4.0" />
+    <PackageReference Include="AsmResolver.PE.File" Version="5.4.0" />
+    <PackageReference Include="AsmResolver.PE.Win32Resources" Version="5.4.0" />
+    <PackageReference Include="AsmResolverKit" Version="1.1.0" />
+  </ItemGroup>
+
+</Project>

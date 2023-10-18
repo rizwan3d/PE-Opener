@@ -1,0 +1,27 @@
+﻿@using PEOpener.Infrastuture;
+@using PE_Opener.Layout
+@inherits LayoutComponentBase
+
+<main>
+    <Layout ShowFooter="true">
+        <Header>
+            <Navbar></Navbar>
+        </Header>
+        <Main>
+            <div style="height: 94.5vh">
+                <Split Basis="10%">
+                    <FirstPaneTemplate>
+                        <SideBar></SideBar>
+                    </FirstPaneTemplate>
+                    <SecondPaneTemplate>
+                        @Body
+                    </SecondPaneTemplate>
+                </Split>
+            </div>
+        </Main>
+        <Footer>
+            <Footer Text="PE-Opener" />
+        </Footer>
+    </Layout>
+</main>
+

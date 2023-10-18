@@ -1,0 +1,40 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using PEOpener.Infrastuture;
+@inject IJSRuntime JSModule;
+
+<InputFile @ref="filePicker" class="form-control" id="inputGroupFile02" OnChange="@LoadFiles" hidden />
+<HxNavbar CssClass="bg-body-tertiary p-0">
+    <HxNavbarToggler />
+    <HxNavbarCollapse>
+        <HxNav CssClass="me-auto mb-2 mb-lg-0">
+            <HxDropdown>
+                <HxDropdownToggleElement ElementName="a" Caret="true" role="button">File</HxDropdownToggleElement>
+                <HxDropdownMenu>
+                    <HxDropdownItemNavLink Href="#" OnClick="@OpenFileDialog">Open</HxDropdownItemNavLink>
+                </HxDropdownMenu>
+            </HxDropdown>
+        </HxNav>
+    </HxNavbarCollapse>
+</HxNavbar>
+@code {
+    InputFile filePicker;
+
+    private async Task OpenFileDialog(MouseEventArgs e)
+    {
+        await JSModule.InvokeAsync<object>("triggerClick", filePicker.Element);
+    }
+
+    private async void LoadFiles(InputFileChangeEventArgs e)
+    {
+        var file = e.GetMultipleFiles(1)[0];
+        using (var reader = new StreamReader(file.OpenReadStream()))
+        {
+            using (var memstream = new MemoryStream())
+            {
+                await reader.BaseStream.CopyToAsync(memstream);
+                HexFile.LoadFile(file.Name,memstream.ToArray());
+                await JSModule.InvokeVoidAsync("createHexEditor", "hexEditor", HexFile.HexBytes);
+            }
+        }
+    }
+}
