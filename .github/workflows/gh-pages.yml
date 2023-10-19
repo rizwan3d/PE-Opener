@@ -19,7 +19,7 @@ jobs:
 
     # publishes Blazor project to the release-folder
     - name: Publish app
-      run: dotnet publish ./PE-Opener/WebRISCV.csproj -c Release
+      run: dotnet publish ./PE-Opener/PE-Opener.csproj -c Release
 
     - name: Rewrite base href
       uses: SteveSandersonMS/ghaction-rewrite-base-href@v1
