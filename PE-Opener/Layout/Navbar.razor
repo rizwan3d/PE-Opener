@@ -34,6 +34,7 @@
                 await reader.BaseStream.CopyToAsync(memstream);
                 HexFile.LoadFile(file.Name,memstream.ToArray());
                 await JSModule.InvokeVoidAsync("createHexEditor", "hexEditor", HexFile.HexBytes);
+                SideBar._instatace.build(HexFile.getSections());
             }
         }
     }
