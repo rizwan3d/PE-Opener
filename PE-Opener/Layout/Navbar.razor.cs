@@ -21,16 +21,8 @@ namespace PEOpener.Layout
         private async void LoadFiles(InputFileChangeEventArgs e)
         {
             var file = e.GetMultipleFiles(1)[0];
-            using (var reader = new StreamReader(file.OpenReadStream()))
-            {
-                using (var memstream = new MemoryStream())
-                {
-                    await reader.BaseStream.CopyToAsync(memstream);
-                    HexFile.LoadFile(file.Name, memstream.ToArray());
-                    await JSModule.InvokeVoidAsync("createHexEditor", "hexEditor", HexFile.HexBytes);
-                    SideBar._instatace.build(HexFile.getSections());
-                }
-            }
+            HexFile.LoadFile(file.Name, file);
+            
         }
     }
 }

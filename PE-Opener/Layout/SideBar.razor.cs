@@ -9,21 +9,25 @@ namespace PEOpener.Layout
 {
     public partial class SideBar : ComponentBase
     {
-        [Inject]
-        private IJSRuntime JSModule { get; set; }
-
         private List<PeFileTree> treeSystem = new List<PeFileTree>();
-        public static SideBar _instatace;
+
+        public static EventHandler<SideBarOnSectionChangeEventArgs> OnSectionChange = delegate { };
 
         protected override void OnInitialized()
         {
-            if (_instatace is null) _instatace = this;
+            HexFile.OnFileLoadComplete += HexFile_OnFileLoadComplete;
         }
+
+        private void HexFile_OnFileLoadComplete(object? sender, EventArgs e)
+        {
+            build(HexFile.getSections());
+        }
+
         public async void OnSelectedItemChanged(PeFileTree selectedItem)
         {
             if (selectedItem.Name == HexFile.FileName)
             {
-                await JSModule.InvokeVoidAsync("createHexEditor", "hexEditor", HexFile.HexBytes);
+                OnSectionChange?.Invoke(this, new SideBarOnSectionChangeEventArgs(HexFile.HexBytes));
                 return;
             }
             else if (selectedItem.Name == "Herader")
@@ -40,8 +44,7 @@ namespace PEOpener.Layout
                 ShowData._instance.UpdateData(data);
                 var bytesString = data.Find(x => x.Key == "Bytes");
                 var bytes = Encoding.ASCII.GetBytes(bytesString.Value);
-                await JSModule.InvokeVoidAsync("createHexEditor", "hexEditor", bytes);
-
+                OnSectionChange?.Invoke(this, new SideBarOnSectionChangeEventArgs(bytes));
             }
         }
         public void build(List<string> sections)

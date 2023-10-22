@@ -8,25 +8,11 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using System.Collections.Generic;
 using System.Reflection.PortableExecutable;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace PEOpener.Infrastuture
 {
-    public class TableItem
-    {
-		public TableItem()
-		{
-		}
-
-		public TableItem(string key, string value)
-		{
-			Key = key;
-			Value = value;
-		}
-
-		public string Key { get; set; }
-        public string Value { get; set; }
-	}
     public static class HexFile
     {
         public static byte[] HexBytes { get; set; }
@@ -34,13 +20,41 @@ namespace PEOpener.Infrastuture
 
         private static PEFile peFile;
 
+        public static long maxFileSize = 1024L * 1024L * 1024L * 2L;
+
         public static bool IsFileOpen { get =>  peFile != null; }
 
-        public static void LoadFile(string fileName, byte[] hexBytes)
+        public static event EventHandler OnFileLoadComplete = delegate { };
+        public static event EventHandler OnFileLoadStart = delegate { };
+        public static event EventHandler OnFileHexLoadComplete = delegate { };
+
+        public static void LoadFile(string fileName, IBrowserFile file)
         {
-            HexBytes = hexBytes;
-            FileName = fileName;
-            peFile = PEFile.FromBytes(hexBytes);
+            Task loadFile = new( async () =>
+            {
+                OnFileLoadStart?.Invoke(null, EventArgs.Empty);
+                using (var reader = new StreamReader(file.OpenReadStream(HexFile.maxFileSize)))
+                {
+                    using (var memstream = new MemoryStream())
+                    {
+                        try
+                        {
+                            await reader.BaseStream.CopyToAsync(memstream);
+                            var bytes = memstream.ToArray();
+                            HexBytes = bytes;
+                            FileName = fileName;
+                            peFile = PEFile.FromBytes(bytes);
+                            OnFileLoadComplete?.Invoke(null, EventArgs.Empty);
+                        }
+                        catch (Exception ex)
+                        {
+                            memstream.Dispose();
+                        }
+                    }
+                }
+                
+            });
+            loadFile.Start();
         }
 
         public static List<TableItem> FileHeader()

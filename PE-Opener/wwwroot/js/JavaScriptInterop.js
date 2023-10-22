@@ -1,4 +1,4 @@
-window.createHexEditor = (elementId,bytes) => {
+window.createHexEditor = (elementId, bytes) => {
     const target = document.getElementById(elementId);
     target.textContent = '';
     const context = new Map();
