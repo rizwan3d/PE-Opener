@@ -74,13 +74,20 @@ namespace PEOpener.Layout
             var sections = HexFile.getSections();
             if (sections.Count > 0)
             {
-                var Section = new PeFileTree("Sections", BootstrapIcon.Envelope);
-                Section.SubTree = new List<PeFileTree>();
-                foreach (var s in sections)
+                try
                 {
-                    Section.SubTree.Add(new PeFileTree(s, BootstrapIcon.Envelope));
+                    var Section = new PeFileTree("Sections", BootstrapIcon.Envelope);
+                    Section.SubTree = new List<PeFileTree>();
+                    sections.ForEach(s =>
+                    {
+                        Section.SubTree.Add(new PeFileTree(s, BootstrapIcon.Envelope));
+                    });
+                    top.SubTree.Add(Section);
                 }
-                top.SubTree.Add(Section);
+                catch (Exception e)
+                {
+                    var r = e.Message;
+                }
             }
 
             var imports = HexFile.getImports();
@@ -95,7 +102,7 @@ namespace PEOpener.Layout
                 top.SubTree.Add(new PeFileTree("Exports", BootstrapIcon.Envelope));
             }
 
-            OnSelectedItemChanged(new PeFileTree(HexFile.FileName, BootstrapIcon.Folder));
+            OnSelectedItemChanged(top);
             StateHasChanged();
         }
     }

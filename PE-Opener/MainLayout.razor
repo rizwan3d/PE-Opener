@@ -1,16 +1,12 @@
-﻿@using PEOpener.Infrastuture;
+﻿@using PEOpener.Components;
+@using PEOpener.Infrastuture;
 @using PEOpener.Layout
 @inherits LayoutComponentBase
 
 <main>
-    <div @ref="spiner" class="position-fixed top-0 start-0 bg-dark w-100 h-100 bg-opacity-75 @( isLoadComplete ? "d-none" : "d-block")" style="z-index:99999">
-        <div class="position-fixed top-50 start-50 translate-middle">
-        <Spinner Size="Size.ExtraExtraLarge" Color="Color.Primary"></Spinner>
-    </div>
-    </div>
+    <LoadingAnimation></LoadingAnimation>
     <Layout ShowFooter="true">
         <Header>
-            
             <Navbar></Navbar>
         </Header>
         <Main>            

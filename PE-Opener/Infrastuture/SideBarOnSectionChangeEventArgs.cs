@@ -9,4 +9,14 @@
             Bytes = bytes;
         }
     }
+
+    public class LoadingStatusEventArgs : EventArgs
+    {
+        public string Status { get; private set; }
+
+        public LoadingStatusEventArgs(string Status)
+        {
+            this.Status = Status;
+        }
+    }
 }

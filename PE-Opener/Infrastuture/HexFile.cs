@@ -20,37 +20,37 @@ namespace PEOpener.Infrastuture
         public static string FileName { get; set; }
 
         private static PEFile peFile;
+        private static IPEImage peImage;
 
         public static long maxFileSize = 1024L * 1024L * 1024L * 2L;
 
         public static bool IsFileOpen { get =>  peFile != null; }
 
-        public static event EventHandler OnFileLoadComplete = delegate { };
-        public static event EventHandler OnFileLoadStart = delegate { };
-        public static event EventHandler OnFileHexLoadComplete = delegate { };
+        public static event EventHandler OnFileLoadComplete;
+        public static event EventHandler OnFileLoadStart;
+        public static event EventHandler OnFileHexLoadComplete;
+        public static event EventHandler<LoadingStatusEventArgs> OnLoadingStatusChange;
 
         public static void LoadFile(string fileName, IBrowserFile file)
         {
             Task loadFile = new( async () =>
             {
                 OnFileLoadStart?.Invoke(null, EventArgs.Empty);
+                OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("File"));
                 using (var reader = new StreamReader(file.OpenReadStream(HexFile.maxFileSize)))
                 {
                     using (var memstream = new MemoryStream())
                     {
-                        try
-                        {
-                            await reader.BaseStream.CopyToAsync(memstream);
-                            var bytes = memstream.ToArray();
-                            HexBytes = bytes;
-                            FileName = fileName;
-                            peFile = PEFile.FromBytes(bytes);
-                            OnFileLoadComplete?.Invoke(null, EventArgs.Empty);
-                        }
-                        catch (Exception ex)
-                        {
-                            memstream.Dispose();
-                        }
+                        await reader.BaseStream.CopyToAsync(memstream);
+                        OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("Hex"));
+                        var bytes = memstream.ToArray();
+                        HexBytes = bytes;
+                        FileName = fileName;
+                        OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("PE File"));
+                        peFile = PEFile.FromBytes(bytes);
+                        OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("PE Image"));
+                        peImage = PEImage.FromFile(peFile);
+                        OnFileLoadComplete?.Invoke(null, EventArgs.Empty);
                     }
                 }
                 
@@ -60,6 +60,7 @@ namespace PEOpener.Infrastuture
 
         public static List<TableItem> FileHeader()
         {
+            OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("FileHeader"));
             FileHeader header = peFile.FileHeader;
             OptionalHeader header2 = peFile.OptionalHeader;
             return new()
@@ -77,6 +78,7 @@ namespace PEOpener.Infrastuture
 
         public static List<TableItem> OptionalHeader()
         {
+            OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("OptionalHeader"));
             OptionalHeader header = peFile.OptionalHeader;
             return new()
             {
@@ -120,6 +122,7 @@ namespace PEOpener.Infrastuture
         static Dictionary<string, PESection>  pESections = new Dictionary<string, PESection>();
         public static List<string> getSections()
         {
+            OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("Sections"));
             List<string> SectionsName = new List<string>();
             foreach (var section in peFile.Sections)
             {
@@ -132,8 +135,8 @@ namespace PEOpener.Infrastuture
         public static List<TableItem> ImportsTable {get; private set;}
         public static List<TableItem> getImports()
         {
+            OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("Imports"));
             ImportsTable = new List<TableItem>();
-            var peImage = PEImage.FromFile(peFile);
             foreach (var module in peImage.Imports)
             {
                 List<string> vals = new List<string>();
@@ -150,8 +153,9 @@ namespace PEOpener.Infrastuture
         public static List<TableItem> ExportsTable { get; private set; }
         public static List<TableItem> getExports()
         {
+            OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("Exports"));
             ExportsTable = new List<TableItem>();
-            var peImage = PEImage.FromFile(peFile);
+            if (peImage.Exports is not null)
             foreach (var symbol in peImage.Exports.Entries)
             {
                 string key = $"Ordinal: {symbol.Ordinal}";
@@ -164,6 +168,7 @@ namespace PEOpener.Infrastuture
 
         public static List<TableItem> GetSectionsByName(string Name)
         {
+            OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("SectionsByName"));
             PESection section = pESections[Name];
             return new()
             {
