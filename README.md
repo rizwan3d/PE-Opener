@@ -1,3 +1,3 @@
 # PE-Opener
 
-![Output Image](https://github.com/rizwan3d/SharpRISCV/blob/master/img.png?raw=true)
+![Output Image](https://github.com/rizwan3d/PE-Opener/blob/master/img.png?raw=true)
