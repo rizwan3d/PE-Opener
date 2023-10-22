@@ -1,4 +1,5 @@
 window.createHexEditor = (elementId, bytes) => {
+    console.log("JS-createHexEditor()-start");
     const target = document.getElementById(elementId);
     target.textContent = '';
     const context = new Map();
@@ -15,6 +16,7 @@ window.createHexEditor = (elementId, bytes) => {
     });
 
     window.hexEditor = hexEditor;
+    console.log("JS-createHexEditor()-complete");
 };
 
 window.triggerClick = (elt) => elt.click();

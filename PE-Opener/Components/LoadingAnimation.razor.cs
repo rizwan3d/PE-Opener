@@ -12,19 +12,16 @@ namespace PEOpener.Components
 
         public LoadingAnimation()
         {
-            HexEditor.OnHexEditorLoadComplete += HexFile_OnLoadComplete;
-            HexEditor.OnHexEditorLoadStart += HexFile_OnLoadStart;
-            HexFile.OnFileLoadStart += HexFile_OnLoadStart2;
             HexFile.OnFileLoadStart += HexFile_OnLoadStart;
+            HexEditor.OnHexEditorLoadStart += HexFile_OnHexEditorLoadStart;
+
+            HexEditor.OnHexEditorLoadComplete += HexFile_OnLoadComplete;
             HexFile.OnLoadingStatusChange += HexFile_OnLoadingStatusChange;
         }
 
         private void HexFile_OnLoadingStatusChange(object? sender, LoadingStatusEventArgs e)
         {
-            this.InvokeAsync(() => {
-                status = e.Status;
-                this.StateHasChanged();
-            });
+            ChangeStatus(e.Status);
         }
 
         private void HexFile_OnLoadStart(object? sender, EventArgs e)
@@ -33,16 +30,24 @@ namespace PEOpener.Components
             StateHasChanged();
         }
 
-        private void HexFile_OnLoadStart2(object? sender, EventArgs e)
+        private void HexFile_OnHexEditorLoadStart(object? sender, EventArgs e)
         {
-            status  = "Hex Editor";
-            StateHasChanged();
+            isLoadComplete = false;
+            ChangeStatus("Hex Editor");
         }
 
         private void HexFile_OnLoadComplete(object? sender, EventArgs e)
         {
             isLoadComplete = true;
             StateHasChanged();
+        }
+
+        private async void ChangeStatus(string status)
+        {
+            Thread.Sleep(500);
+            this.status = status;
+            StateHasChanged();
+            Console.WriteLine(status);
         }
     }
 }

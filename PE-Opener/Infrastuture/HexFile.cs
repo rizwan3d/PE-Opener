@@ -33,7 +33,7 @@ namespace PEOpener.Infrastuture
 
         public static void LoadFile(string fileName, IBrowserFile file)
         {
-            Task loadFile = new( async () =>
+            Task loadFile = new(async () =>
             {
                 OnFileLoadStart?.Invoke(null, EventArgs.Empty);
                 OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("File"));
@@ -53,7 +53,7 @@ namespace PEOpener.Infrastuture
                         OnFileLoadComplete?.Invoke(null, EventArgs.Empty);
                     }
                 }
-                
+
             });
             loadFile.Start();
         }
@@ -170,6 +170,7 @@ namespace PEOpener.Infrastuture
         {
             OnLoadingStatusChange?.Invoke(null, new LoadingStatusEventArgs("SectionsByName"));
             PESection section = pESections[Name];
+            if(section.IsReadable)
             return new()
             {
                 new TableItem("Name", section.Name),
@@ -178,8 +179,8 @@ namespace PEOpener.Infrastuture
                 new TableItem("IsMemoryShared", section.IsMemoryShared.ToString()),
                 new TableItem("IsReadable", section.IsReadable.ToString()),
                 new TableItem("Characteristics", section.Characteristics.ToString()),
-                new TableItem("PhysicalSize", section.GetPhysicalSize().ToString()),
-                new TableItem("VirtualSize", section.GetVirtualSize().ToString()),
+                //new TableItem("PhysicalSize", section.GetPhysicalSize().ToString()),
+                //new TableItem("VirtualSize", section.GetVirtualSize().ToString()),
                 new TableItem("IsContentCode", section.IsContentCode.ToString()),
                 new TableItem("IsContentInitializedData", section.IsContentInitializedData.ToString()),
                 new TableItem("IsContentUninitializedData", section.IsContentUninitializedData.ToString()),
@@ -193,6 +194,8 @@ namespace PEOpener.Infrastuture
                 new TableItem("IsReadable", section.IsReadable.ToString()),
                 new TableItem("Bytes", Encoding.ASCII.GetString(section.ToArray(), 0, section.ToArray().Length)),
             };
+
+            return new List<TableItem>();
         }
     }
 }
