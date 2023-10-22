@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Text;
+using static System.Collections.Specialized.BitVector32;
 
 namespace PEOpener.Infrastuture
 {
@@ -126,6 +127,39 @@ namespace PEOpener.Infrastuture
                 SectionsName.Add(section.Name);
             }
             return SectionsName;
+        }
+
+        public static List<TableItem> ImportsTable {get; private set;}
+        public static List<TableItem> getImports()
+        {
+            ImportsTable = new List<TableItem>();
+            var peImage = PEImage.FromFile(peFile);
+            foreach (var module in peImage.Imports)
+            {
+                List<string> vals = new List<string>();
+                foreach (var member in module.Symbols)
+                {
+                    if (member.IsImportByName) vals.Add(member.Name);
+                    else vals.Add(member.Ordinal.ToString());
+                }
+                ImportsTable.Add(new TableItem { Key = module.Name, Value = string.Join(",", vals.ToArray()) });
+            }
+            return ImportsTable;
+        }
+
+        public static List<TableItem> ExportsTable { get; private set; }
+        public static List<TableItem> getExports()
+        {
+            ExportsTable = new List<TableItem>();
+            var peImage = PEImage.FromFile(peFile);
+            foreach (var symbol in peImage.Exports.Entries)
+            {
+                string key = $"Ordinal: {symbol.Ordinal}";
+                if (symbol.IsByName)
+                    key += $" Name: {symbol.Name}";
+                ExportsTable.Add(new TableItem { Key = key, Value = $"Address: {symbol.Address.Rva:X8}" });
+            }
+            return ExportsTable;
         }
 
         public static List<TableItem> GetSectionsByName(string Name)

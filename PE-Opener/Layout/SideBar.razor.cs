@@ -20,7 +20,7 @@ namespace PEOpener.Layout
 
         private void HexFile_OnFileLoadComplete(object? sender, EventArgs e)
         {
-            build(HexFile.getSections());
+            build();
         }
 
         public async void OnSelectedItemChanged(PeFileTree selectedItem)
@@ -46,8 +46,16 @@ namespace PEOpener.Layout
                 var bytes = Encoding.ASCII.GetBytes(bytesString.Value);
                 OnSectionChange?.Invoke(this, new SideBarOnSectionChangeEventArgs(bytes));
             }
+            else if (selectedItem.Name == "Imports")
+            {
+                ShowData._instance.UpdateData(HexFile.ImportsTable);
+            }
+            else if (selectedItem.Name == "Exports")
+            {
+                ShowData._instance.UpdateData(HexFile.ExportsTable);
+            }
         }
-        public void build(List<string> sections)
+        public void build()
         {
             treeSystem = new List<PeFileTree>();
 
@@ -57,10 +65,13 @@ namespace PEOpener.Layout
             var Herader = new PeFileTree("Herader", BootstrapIcon.Envelope);
             var OptionalHeader = new PeFileTree("Optional Header", BootstrapIcon.Envelope);
 
-            top.SubTree = new List<PeFileTree>();
-            top.SubTree.Add(Herader);
-            top.SubTree.Add(OptionalHeader);
+            top.SubTree = new List<PeFileTree>
+            {
+                Herader,
+                OptionalHeader
+            };
 
+            var sections = HexFile.getSections();
             if (sections.Count > 0)
             {
                 var Section = new PeFileTree("Sections", BootstrapIcon.Envelope);
@@ -70,6 +81,18 @@ namespace PEOpener.Layout
                     Section.SubTree.Add(new PeFileTree(s, BootstrapIcon.Envelope));
                 }
                 top.SubTree.Add(Section);
+            }
+
+            var imports = HexFile.getImports();
+            if (imports.Count > 0)
+            {                
+                top.SubTree.Add(new PeFileTree("Imports",BootstrapIcon.Envelope));
+            }
+
+            var export = HexFile.getExports();
+            if (export.Count > 0)
+            {
+                top.SubTree.Add(new PeFileTree("Exports", BootstrapIcon.Envelope));
             }
 
             OnSelectedItemChanged(new PeFileTree(HexFile.FileName, BootstrapIcon.Folder));
