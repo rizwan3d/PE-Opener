@@ -1,4 +1,4 @@
-﻿namespace PE_Opener.Windows
+﻿namespace PEOpener.Windows
 {
     partial class Form1
     {

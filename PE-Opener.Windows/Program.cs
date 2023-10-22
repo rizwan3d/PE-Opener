@@ -1,4 +1,4 @@
-namespace PE_Opener.Windows
+namespace PEOpener.Windows
 {
     internal static class Program
     {

@@ -1,11 +1,2 @@
-﻿@inject IJSRuntime JSModule
+﻿@inherits ComponentBase
 <div id="hexEditor" style="height: 100%;"></div>
-@code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JSModule.InvokeVoidAsync("createHexEditor", "hexEditor", new { });
-        }
-    }
-}

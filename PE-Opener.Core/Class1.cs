@@ -1,4 +1,4 @@
-﻿namespace PE_Opener.Core
+﻿namespace PEOpener.Core
 {
     public class Class1
     {
